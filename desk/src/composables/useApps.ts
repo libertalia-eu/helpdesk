@@ -10,13 +10,6 @@ export interface App {
   route: string;
 }
 
-const deskApp: App = {
-  name: "frappe",
-  logo: "/assets/helpdesk/desk/desk.png",
-  title: "Desk",
-  route: "/desk/helpdesk",
-};
-
 interface AppsMenuOption {
   label: string;
   icon: Component;
@@ -38,7 +31,7 @@ export function useApps() {
     // switch, so this re-evaluates for agents
     auto: !isCustomerPortal.value,
     transform: (data: App[]) => {
-      const apps = [deskApp];
+      const apps: App[] = [];
       data.forEach((app) => {
         if (app.name === "helpdesk") return;
         apps.push({
