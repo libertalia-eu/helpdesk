@@ -23,14 +23,17 @@ interface AppsMenuOption {
  * Mirrors the apps switcher in frappe/builder (`DashboardSidebar.vue`): plain
  * `label`/`icon`/`onClick` items so reka's submenu hover-intent works cleanly.
  */
-// The window name makes a second click reuse the window; `noopener` would ignore the name, so the opener is cut afterwards.
+// The window name makes a second click reuse the window; `noopener` would ignore the name, and an opener cut after opening the
+// address does not hold. So the empty window opens first, loses its opener, and only then gets the address.
 function openApp(app: App) {
-  const target = window.open(app.route, `compass-${app.name}`);
+  const target = window.open("", `compass-${app.name}`);
+  if (!target) return;
   try {
-    if (target) target.opener = null;
+    target.opener = null;
   } catch (e) {
     // a reused window of another host has the opener cut already
   }
+  target.location.href = app.route;
 }
 
 export function useApps() {
