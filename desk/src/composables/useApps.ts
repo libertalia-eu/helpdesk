@@ -53,7 +53,7 @@ export function useApps() {
     submenu: apps.value.map((app) => ({
       label: app.title,
       icon: h("img", { src: app.logo }),
-      onClick: () => window.open(app.route, "_blank", "noopener"),
+      onClick: () => window.open(app.route, `compass-${app.name}`, "noopener"),
     })),
   }));
 
