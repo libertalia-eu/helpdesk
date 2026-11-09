@@ -10,13 +10,6 @@ export interface App {
   route: string;
 }
 
-const deskApp: App = {
-  name: "frappe",
-  logo: "/assets/helpdesk/desk/desk.png",
-  title: "Desk",
-  route: "/desk/helpdesk",
-};
-
 interface AppsMenuOption {
   label: string;
   icon: Component;
@@ -30,6 +23,19 @@ interface AppsMenuOption {
  * Mirrors the apps switcher in frappe/builder (`DashboardSidebar.vue`): plain
  * `label`/`icon`/`onClick` items so reka's submenu hover-intent works cleanly.
  */
+// The window name makes a second click reuse the window; `noopener` would ignore the name, and an opener cut after opening the
+// address does not hold. So the empty window opens first, loses its opener, and only then gets the address.
+function openApp(app: App) {
+  const target = window.open("", `compass-${app.name}`);
+  if (!target) return;
+  try {
+    target.opener = null;
+  } catch (e) {
+    // a reused window of another host has the opener cut already
+  }
+  target.location.href = app.route;
+}
+
 export function useApps() {
   const resource = createResource({
     url: "frappe.apps.get_apps",
@@ -38,7 +44,7 @@ export function useApps() {
     // switch, so this re-evaluates for agents
     auto: !isCustomerPortal.value,
     transform: (data: App[]) => {
-      const apps = [deskApp];
+      const apps: App[] = [];
       data.forEach((app) => {
         if (app.name === "helpdesk") return;
         apps.push({
@@ -60,7 +66,7 @@ export function useApps() {
     submenu: apps.value.map((app) => ({
       label: app.title,
       icon: h("img", { src: app.logo }),
-      onClick: () => window.open(app.route, "_self"),
+      onClick: () => openApp(app),
     })),
   }));
 
